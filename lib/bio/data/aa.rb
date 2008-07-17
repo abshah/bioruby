@@ -76,57 +76,76 @@ class AminoAcid
       'Xaa' => 'unknown [A-Z]',
 
     }
-
-    # AAindex FASG760101 - Molecular weight (Fasman, 1976)
-    #   Fasman, G.D., ed.
-    #   Handbook of Biochemistry and Molecular Biology", 3rd ed.,
-    #   Proteins - Volume 1, CRC Press, Cleveland (1976)
-
-    WEIGHT = {
-
-      'A' => 89.09,
-      'C' => 121.15,	# 121.16 according to the Wikipedia
-      'D' => 133.10,
-      'E' => 147.13,
-      'F' => 165.19,
-      'G' => 75.07,
-      'H' => 155.16,
-      'I' => 131.17,
-      'K' => 146.19,
-      'L' => 131.17,
-      'M' => 149.21,
-      'N' => 132.12,
-      'P' => 115.13,
-      'Q' => 146.15,
-      'R' => 174.20,
-      'S' => 105.09,
-      'T' => 119.12,
-      'U' => 168.06,
-      'V' => 117.15,
-      'W' => 204.23,
-      'Y' => 181.19,
+    
+    ## Taken from http://matrixscience.com/help/aa_help.html
+    # The data in this table are for amino acid residues. To 
+    # calculate the mass of a neutral peptide or protein, sum 
+    # the residue masses plus the masses of the terminating groups
+    # (e.g. H at the N-terminus and OH at the C-terminus).
+    MONOISOTOPICMASS = {
+      'A' => 71.03712 ,
+      'R' => 156.10112,
+      'N' => 114.04293,
+      'D' => 115.02695,
+      'C' => 103.00919,
+      'E' => 129.0426 ,
+      'Q' => 128.05858,
+      'G' => 57.02147 ,
+      'H' => 137.05891,
+      'I' => 113.08407,
+      'L' => 113.08407,
+      'K' => 128.09497,
+      'M' => 131.04049,
+      'F' => 147.06842,
+      'P' => 97.05277 ,
+      'S' => 87.03203 ,
+      'T' => 101.04768,
+      'U' => 150.95364,
+      'W' => 186.07932,
+      'Y' => 163.06333,
+      'V' => 99.06842
+    }
+    AVGMASS = {
+      'A' => 71.08 ,
+      'R' => 156.19,
+      'N' => 114.1 ,
+      'D' => 115.09,
+      'C' => 103.14,
+      'E' => 129.12,
+      'Q' => 128.13,
+      'G' => 57.05 ,
+      'H' => 137.14,
+      'I' => 113.16,
+      'L' => 113.16,
+      'K' => 128.17,
+      'M' => 131.19,
+      'F' => 147.18,
+      'P' => 97.12 ,
+      'S' => 87.08 ,
+      'T' => 101.1 ,
+      'U' => 150.03,
+      'W' => 186.21,
+      'Y' => 163.18,
+      'V' => 99.13
     }
 
-    def weight(x = nil)
-      if x
-        if x.length > 1
-          total = 0.0
-          x.each_byte do |byte|
-            aa = byte.chr.upcase
-            if WEIGHT[aa]
-              total += WEIGHT[aa]
-            else
-              raise "Error: invalid amino acid '#{aa}'"
-            end
-          end
-          total -= NucleicAcid.weight[:water] * (x.length - 1)
-        else
-          WEIGHT[x]
-        end
-      else
-        WEIGHT
+    def weight(x = nil, monoisotopic=true)
+      table = monoisotopic ? MONOISOTOPICMASS : AVGMASS
+      unless x 
+        return table
       end
+      total = 0.0
+      x.each_byte do |byte|
+        aa = byte.chr.upcase
+        if table[aa]
+          total += table[aa]
+        else
+          raise "Error: invalid amino acid '#{aa}'"
+        end
+      end
+      total += NucleicAcid.weight[:water]
     end
+
 
     def [](x)
       NAMES[x]
